@@ -1,0 +1,40 @@
+# Research Hub — LLM configuration
+#
+# Each task maps to a LiteLLM model string ("provider/model-id").
+# Swapping a model = editing one line here. API keys come from the
+# environment (see .env.example); keys are validated when a task's
+# provider is actually used.
+
+providers:
+  anthropic:
+    api_key_env: ANTHROPIC_API_KEY
+  openai:
+    api_key_env: OPENAI_API_KEY
+  gemini:
+    api_key_env: GEMINI_API_KEY
+
+tasks:
+  # High-volume, cheap: relevance notes + include/exclude recommendations
+  screening:
+    model: anthropic/claude-haiku-4-5
+    max_tokens: 1024
+
+  # Deep per-paper Problem Space Review (quote-grounded, full text)
+  problem_review:
+    model: anthropic/claude-opus-4-8
+    max_tokens: 8192
+
+  # Protocol generation from the research proposal
+  protocol:
+    model: anthropic/claude-opus-4-8
+    max_tokens: 4096
+
+  # Corpus-level clustering labels, digests, synthesis drafts
+  corpus_synthesis:
+    model: anthropic/claude-opus-4-8
+    max_tokens: 8192
+
+  # Ad-hoc chat with a paper / the corpus
+  chat:
+    model: anthropic/claude-opus-4-8
+    max_tokens: 4096

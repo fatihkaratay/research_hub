@@ -218,3 +218,18 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# AI tools.
+.claude/
+
+# Research Hub: local data (SQLite DB, downloaded PDFs)
+data/
+
+# Node / Next.js
+node_modules/
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+
+# OS
+.DS_Store

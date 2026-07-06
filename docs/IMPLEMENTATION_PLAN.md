@@ -17,9 +17,13 @@
 
 ## Current Status
 
-**Phase:** Not started — planning complete, no code written yet.
-**Last done:** Created this plan (2026-07-06). Walkthrough confirmed by user.
-**Next up:** Phase 0, step 0.1 — scaffold the repo.
+**Phase:** Phase 0 complete (except LLM smoke test run — needs API keys in `.env`).
+**Last done:** Scaffolded backend (FastAPI + venv) and frontend (Next.js 16 +
+Tailwind), `config.yaml` + loader, LiteLLM adapter, Makefile, README. Verified
+end-to-end: `make dev` → frontend on :3000 proxies `/api/health` to backend
+on :8000, page renders task→model routing. Committed.
+**Next up:** User copies `.env.example` → `.env` with keys, run `make smoke`
+(closes 0.5). Then Phase 1, step 1.1 — Alembic + SQLite.
 
 ---
 
@@ -41,24 +45,28 @@
 Goal: empty but runnable app. `make dev` starts backend + frontend, both
 respond.
 
-- [ ] **0.1** Create repo layout:
+- [x] **0.1** Create repo layout:
       `backend/` (FastAPI), `frontend/` (Next.js), `docs/`, `data/`
       (SQLite DB + downloaded PDFs live here, gitignored).
-- [ ] **0.2** Backend skeleton: FastAPI app with `GET /api/health`
-      returning `{"status": "ok"}`. `uv` (or venv+pip) for deps.
-- [ ] **0.3** Frontend skeleton: Next.js + Tailwind, one page that calls
-      `/api/health` and shows the result.
-- [ ] **0.4** `config.yaml` + loader: providers (anthropic/openai/gemini,
+- [x] **0.2** Backend skeleton: FastAPI app with `GET /api/health`
+      returning `{"status": "ok"}`. venv+pip for deps (no uv on machine).
+- [x] **0.3** Frontend skeleton: Next.js 16 + Tailwind, home page calls
+      `/api/health` (proxied via next.config rewrite) and shows the result.
+- [x] **0.4** `config.yaml` + loader: providers (anthropic/openai/gemini,
       keys from env vars) and task→model mapping (screening,
-      problem_review, chat, embeddings). Validate on startup, fail with a
-      clear message if a referenced env var is missing.
-- [ ] **0.5** LLM adapter: one function `complete(task, messages) -> str`
-      that routes through LiteLLM using the task's configured model.
-      Smoke-test script proves all three providers answer "say hi".
-- [ ] **0.6** `Makefile` (or `justfile`): `dev`, `test`, `lint`.
-- [ ] **0.7** `.env.example`, `.gitignore` (data/, .env, node_modules,
-      __pycache__), update `README.md` with setup steps.
-- [ ] **0.8** First commit.
+      problem_review, protocol, corpus_synthesis, chat). *Deviation from
+      plan: missing keys are a startup warning + surfaced in `/api/health`,
+      and a hard error only when the task is actually invoked — so the app
+      runs without keys.* Models: haiku-4-5 for screening, opus-4-8 for
+      deep tasks (embeddings task deferred to Phase 6 when it's needed).
+- [x] **0.5** LLM adapter `complete(task, messages)` via LiteLLM +
+      `scripts/smoke_test.py`. ⚠️ Smoke test NOT yet run — no API keys in
+      `.env`. Run `make smoke` once keys are in.
+- [x] **0.6** `Makefile`: `dev`, `dev-backend`, `dev-frontend`, `test`,
+      `lint`, `smoke`.
+- [x] **0.7** `.env.example`, `.gitignore` extended (data/, node_modules,
+      .next), `README.md` rewritten with setup steps.
+- [x] **0.8** First commit.
 
 **Done when:** fresh clone + documented setup steps → both servers run,
 health check green, LLM smoke test passes.
@@ -238,3 +246,4 @@ I judge).
 | Date | What happened | Next |
 |------|--------------|------|
 | 2026-07-06 | Wrote IDEAS.md, WALKTHROUGH.md (user confirmed), this plan. No code yet. | Phase 0: scaffold repo. |
+| 2026-07-06 | Phase 0 done: FastAPI backend + Next.js 16 frontend + config.yaml/LiteLLM adapter + Makefile. Verified health check end-to-end through the :3000→:8000 proxy. Smoke test pending API keys. | User: fill `.env`, run `make smoke`. Then Phase 1 (SQLite + Alembic + paper tables). |
