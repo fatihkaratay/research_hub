@@ -13,28 +13,31 @@ providers:
   gemini:
     api_key_env: GEMINI_API_KEY
 
+# TEMPORARY: all tasks routed to OpenAI while that's the only key available.
+# Preferred Claude routing is in the comments — swap back when the
+# Anthropic key is set (haiku for screening, opus for deep tasks).
 tasks:
   # High-volume, cheap: relevance notes + include/exclude recommendations
   screening:
-    model: anthropic/claude-haiku-4-5
+    model: openai/gpt-5-mini # anthropic/claude-haiku-4-5
     max_tokens: 1024
 
   # Deep per-paper Problem Space Review (quote-grounded, full text)
   problem_review:
-    model: anthropic/claude-opus-4-8
+    model: openai/gpt-5 # anthropic/claude-opus-4-8
     max_tokens: 8192
 
   # Protocol generation from the research proposal
   protocol:
-    model: anthropic/claude-opus-4-8
+    model: openai/gpt-5 # anthropic/claude-opus-4-8
     max_tokens: 4096
 
   # Corpus-level clustering labels, digests, synthesis drafts
   corpus_synthesis:
-    model: anthropic/claude-opus-4-8
+    model: openai/gpt-5 # anthropic/claude-opus-4-8
     max_tokens: 8192
 
   # Ad-hoc chat with a paper / the corpus
   chat:
-    model: anthropic/claude-opus-4-8
+    model: openai/gpt-5 # anthropic/claude-opus-4-8
     max_tokens: 4096

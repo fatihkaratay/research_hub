@@ -4,14 +4,17 @@ Usage:  cd backend && .venv/bin/python scripts/smoke_test.py
 Needs the provider API keys set in ../.env (see .env.example).
 """
 
+import os
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-import litellm
+# app must be imported before litellm: app/__init__.py sets SSL_CERT_FILE,
+# which litellm's HTTP stack reads at import time.
+from app.config import config  # noqa: E402
 
-from app.config import config
+import litellm  # noqa: E402
 
 # One cheap model per provider, just to prove the key + wiring work.
 PROBE_MODELS = {
@@ -28,6 +31,10 @@ def main() -> int:
         model = PROBE_MODELS.get(provider)
         if model is None:
             print(f"  {provider}: no probe model defined, skipping")
+            continue
+        env_var = config.providers.get(provider)
+        if env_var and not os.environ.get(env_var):
+            print(f"  {provider}: skipped — {env_var} not set in .env")
             continue
         try:
             api_key = config.api_key_for(provider)

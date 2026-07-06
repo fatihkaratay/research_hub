@@ -22,8 +22,9 @@
 Tailwind), `config.yaml` + loader, LiteLLM adapter, Makefile, README. Verified
 end-to-end: `make dev` → frontend on :3000 proxies `/api/health` to backend
 on :8000, page renders task→model routing. Committed.
-**Next up:** User copies `.env.example` → `.env` with keys, run `make smoke`
-(closes 0.5). Then Phase 1, step 1.1 — Alembic + SQLite.
+**Next up:** User adds API credit to the OpenAI account (key is valid but
+quota is 0 — completions rejected). Then `make smoke` closes 0.5. Then
+Phase 1, step 1.1 — Alembic + SQLite.
 
 ---
 
@@ -37,6 +38,8 @@ on :8000, page renders task→model routing. Committed.
 | 2026-07-06 | Multi-provider LLM (Claude + OpenAI + Gemini keys available) via `config.yaml`, LiteLLM as the adapter. |
 | 2026-07-06 | Stack: **FastAPI (Python) backend + Next.js frontend + SQLite** (with `sqlite-vec` for embeddings). SQLite over Postgres because single-user/local — zero setup, one file to back up. Revisit only if it actually hurts. |
 | 2026-07-06 | Sources for MVP: Semantic Scholar first, then arXiv + NASA NTRS. OpenAlex in v2. Scopus/WoS pending JHU library answer. |
+| 2026-07-06 | TEMPORARY: all tasks routed to OpenAI (gpt-5-mini screening, gpt-5 deep) — only key available. Claude routing preserved as comments in config.yaml; swap back when Anthropic key arrives. |
+| 2026-07-06 | TLS: this machine's shell sets SSL_CERT_FILE to a JHUAPL-only root CA, breaking Python HTTPS to public sites. `backend/app/__init__.py` builds a combined certifi+JHUAPL bundle in `data/ca-bundle.pem` and points the process at it. Don't remove. |
 
 ---
 
@@ -247,3 +250,4 @@ I judge).
 |------|--------------|------|
 | 2026-07-06 | Wrote IDEAS.md, WALKTHROUGH.md (user confirmed), this plan. No code yet. | Phase 0: scaffold repo. |
 | 2026-07-06 | Phase 0 done: FastAPI backend + Next.js 16 frontend + config.yaml/LiteLLM adapter + Makefile. Verified health check end-to-end through the :3000→:8000 proxy. Smoke test pending API keys. | User: fill `.env`, run `make smoke`. Then Phase 1 (SQLite + Alembic + paper tables). |
+| 2026-07-06 | OpenAI-only testing: routed all tasks to gpt-5/gpt-5-mini, smoke test skips keyless providers, fixed JHUAPL SSL_CERT_FILE breaking Python HTTPS (combined CA bundle). Key authenticates; completions blocked by $0 OpenAI quota. | User: add OpenAI API credit, run `make smoke`. Then Phase 1. |
