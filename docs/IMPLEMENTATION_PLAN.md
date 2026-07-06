@@ -17,14 +17,11 @@
 
 ## Current Status
 
-**Phase:** Phase 0 complete (except LLM smoke test run — needs API keys in `.env`).
-**Last done:** Scaffolded backend (FastAPI + venv) and frontend (Next.js 16 +
-Tailwind), `config.yaml` + loader, LiteLLM adapter, Makefile, README. Verified
-end-to-end: `make dev` → frontend on :3000 proxies `/api/health` to backend
-on :8000, page renders task→model routing. Committed.
-**Next up:** User adds API credit to the OpenAI account (key is valid but
-quota is 0 — completions rejected). Then `make smoke` closes 0.5. Then
-Phase 1, step 1.1 — Alembic + SQLite.
+**Phase:** Phase 0 COMPLETE. ✅
+**Last done:** All LLM tasks routed to `gemini/gemini-2.5-flash` (free tier)
+and verified live through `complete()` — screening, problem_review, and chat
+all answered. Frontend/backend verified earlier via the :3000→:8000 proxy.
+**Next up:** Phase 1, step 1.1 — Alembic + SQLite data model.
 
 ---
 
@@ -38,7 +35,7 @@ Phase 1, step 1.1 — Alembic + SQLite.
 | 2026-07-06 | Multi-provider LLM (Claude + OpenAI + Gemini keys available) via `config.yaml`, LiteLLM as the adapter. |
 | 2026-07-06 | Stack: **FastAPI (Python) backend + Next.js frontend + SQLite** (with `sqlite-vec` for embeddings). SQLite over Postgres because single-user/local — zero setup, one file to back up. Revisit only if it actually hurts. |
 | 2026-07-06 | Sources for MVP: Semantic Scholar first, then arXiv + NASA NTRS. OpenAlex in v2. Scopus/WoS pending JHU library answer. |
-| 2026-07-06 | TEMPORARY: all tasks routed to OpenAI (gpt-5-mini screening, gpt-5 deep) — only key available. Claude routing preserved as comments in config.yaml; swap back when Anthropic key arrives. |
+| 2026-07-06 | TEMPORARY: all tasks routed to `gemini/gemini-2.5-flash` (free tier; `gemini-2.5-pro` has free-tier limit 0). Claude routing preserved as comments in config.yaml — swap back when the Anthropic key arrives. OpenAI key present but $0 API credit. |
 | 2026-07-06 | TLS: this machine's shell sets SSL_CERT_FILE to a JHUAPL-only root CA, breaking Python HTTPS to public sites. `backend/app/__init__.py` builds a combined certifi+JHUAPL bundle in `data/ca-bundle.pem` and points the process at it. Don't remove. |
 
 ---
@@ -63,8 +60,9 @@ respond.
       runs without keys.* Models: haiku-4-5 for screening, opus-4-8 for
       deep tasks (embeddings task deferred to Phase 6 when it's needed).
 - [x] **0.5** LLM adapter `complete(task, messages)` via LiteLLM +
-      `scripts/smoke_test.py`. ⚠️ Smoke test NOT yet run — no API keys in
-      `.env`. Run `make smoke` once keys are in.
+      `scripts/smoke_test.py`. Verified live on Gemini (2026-07-06): all
+      task routes answer. OpenAI key valid but $0 quota; Anthropic key
+      not yet created.
 - [x] **0.6** `Makefile`: `dev`, `dev-backend`, `dev-frontend`, `test`,
       `lint`, `smoke`.
 - [x] **0.7** `.env.example`, `.gitignore` extended (data/, node_modules,
@@ -251,3 +249,4 @@ I judge).
 | 2026-07-06 | Wrote IDEAS.md, WALKTHROUGH.md (user confirmed), this plan. No code yet. | Phase 0: scaffold repo. |
 | 2026-07-06 | Phase 0 done: FastAPI backend + Next.js 16 frontend + config.yaml/LiteLLM adapter + Makefile. Verified health check end-to-end through the :3000→:8000 proxy. Smoke test pending API keys. | User: fill `.env`, run `make smoke`. Then Phase 1 (SQLite + Alembic + paper tables). |
 | 2026-07-06 | OpenAI-only testing: routed all tasks to gpt-5/gpt-5-mini, smoke test skips keyless providers, fixed JHUAPL SSL_CERT_FILE breaking Python HTTPS (combined CA bundle). Key authenticates; completions blocked by $0 OpenAI quota. | User: add OpenAI API credit, run `make smoke`. Then Phase 1. |
+| 2026-07-06 | Gemini free-tier key added. All tasks → gemini-2.5-flash (pro has free-tier limit 0). Verified live: smoke test OK + all `complete()` task routes answer. **Phase 0 closed.** | Phase 1: SQLite + Alembic + paper/project/decision tables. |
