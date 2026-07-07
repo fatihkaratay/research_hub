@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.config import config
-from app.routers import papers, projects
+from app.routers import papers, projects, protocol
 
 logger = logging.getLogger("research_hub")
 
@@ -26,6 +26,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Research Hub API", lifespan=lifespan)
 app.include_router(projects.router)
 app.include_router(papers.router)
+app.include_router(protocol.router)
 
 
 @app.get("/api/health")

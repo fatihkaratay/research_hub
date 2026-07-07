@@ -17,13 +17,15 @@
 
 ## Current Status
 
-**Phase:** Phase 1 COMPLETE. ✅ (Phases 0–1 done)
-**Last done:** SQLite + Alembic (initial migration applied), models for
-project/paper/search_query/screening_decision, dedup (DOI → arXiv →
-normalized title, project-scoped), CRUD API for projects+papers, 10 passing
-tests, idempotent seed script with 5 space-robotics papers. Verified live:
-list/insert/duplicate-409/patch all work against the real DB.
-**Next up:** Phase 2, step 2.1 — proposal upload + text extraction (pypdf).
+**Phase:** Phase 2 COMPLETE. ✅ (Phases 0–2 done)
+**Last done:** Proposal upload (.pdf/.txt/.md → text), LLM protocol
+generation (validated JSON: research_questions / keyword_clusters /
+queries), versioned protocol storage (protocol_version table), protocol
+editor page at /protocol. Tested live with the real proposal: 19,762 chars
+extracted, Gemini generated 5 RQs / 6 clusters / 10 queries — all
+on-topic (GNN warm-starts for decentralized multi-robot trajectory
+optimization). Survives backend restart. 14 tests green.
+**Next up:** Phase 3, step 3.1 — Semantic Scholar search client.
 
 ---
 
@@ -103,17 +105,17 @@ list/update them via API. Tests pass.
 
 Goal: paste/upload my proposal → editable protocol.
 
-- [ ] **2.1** Upload endpoint: accept the proposal PDF, extract plain text
-      (pypdf is fine here — it's my own clean PDF).
-- [ ] **2.2** Protocol generation prompt: proposal text → JSON with
-      research questions, keyword clusters, draft search queries.
-      Save to `project.protocol`.
-- [ ] **2.3** Protocol editor page: view/edit questions, keywords, queries.
-      Saving re-persists; protocol is versioned (keep old copies —
-      my proposal will change).
-- [ ] **2.4** Manual test with the real proposal in
-      `docs/Research Proposal.pdf` — sanity-check the generated protocol
-      against what I know about my topic.
+- [x] **2.1** `POST /api/projects/{id}/proposal` — accepts .pdf/.txt/.md,
+      extracts text (pypdf), rejects scans (<200 chars extracted).
+- [x] **2.2** `POST /api/projects/{id}/protocol/generate` — LLM ("protocol"
+      task) → validated JSON, saved to `project.protocol`.
+- [x] **2.3** Protocol editor at `/protocol`: upload, generate, edit
+      questions/clusters/queries, save. Every generate/save appends to
+      `protocol_version` (`GET .../protocol/versions`).
+- [x] **2.4** Manual test with real proposal: 19,762 chars extracted;
+      Gemini produced 5 RQs, 6 keyword clusters, 10 queries — accurately
+      reflecting the proposal (GNN warm-starts, decentralized multi-robot
+      trajectory optimization, sim-to-real, safety/verification).
 
 **Done when:** I can upload the proposal, get a sensible protocol, edit it,
 and it survives restart.
@@ -253,3 +255,4 @@ I judge).
 | 2026-07-06 | OpenAI-only testing: routed all tasks to gpt-5/gpt-5-mini, smoke test skips keyless providers, fixed JHUAPL SSL_CERT_FILE breaking Python HTTPS (combined CA bundle). Key authenticates; completions blocked by $0 OpenAI quota. | User: add OpenAI API credit, run `make smoke`. Then Phase 1. |
 | 2026-07-06 | Gemini free-tier key added. All tasks → gemini-2.5-flash (pro has free-tier limit 0). Verified live: smoke test OK + all `complete()` task routes answer. **Phase 0 closed.** | Phase 1: SQLite + Alembic + paper/project/decision tables. |
 | 2026-07-07 | Phase 1 done: SQLAlchemy models + Alembic migration, dedup module, projects/papers CRUD API, 10 tests green, seed script (idempotent). Live-verified: duplicate insert → 409, patch status works. **Phase 1 closed.** | Phase 2: proposal upload → protocol generation → protocol editor. |
+| 2026-07-07 | Phase 2 done: proposal upload, protocol generation (live-tested with real proposal — output on-topic), versioned protocol storage, /protocol editor page. 14 tests green. **Phase 2 closed.** | Phase 3: discovery — Semantic Scholar, arXiv, NTRS clients → inbox. |

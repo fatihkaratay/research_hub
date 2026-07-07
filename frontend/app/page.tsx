@@ -21,7 +21,12 @@ export default function Home() {
 
   return (
     <main className="mx-auto max-w-2xl p-8 font-mono">
-      <h1 className="mb-6 text-2xl font-bold">Research Hub</h1>
+      <h1 className="mb-2 text-2xl font-bold">Research Hub</h1>
+      <nav className="mb-6 text-sm">
+        <a href="/protocol" className="text-blue-600 underline">
+          Review protocol →
+        </a>
+      </nav>
 
       {error && (
         <p className="text-red-600">

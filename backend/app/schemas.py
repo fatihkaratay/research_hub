@@ -22,6 +22,17 @@ class ProjectOut(BaseModel):
     created_at: datetime
 
 
+class ProtocolPut(BaseModel):
+    protocol: dict
+
+
+class ProtocolOut(BaseModel):
+    protocol: dict | None
+    version_count: int
+    has_proposal: bool
+    proposal_chars: int
+
+
 class PaperCreate(BaseModel):
     project_id: int
     title: str

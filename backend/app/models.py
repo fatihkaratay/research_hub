@@ -59,6 +59,19 @@ class Paper(Base):
     __table_args__ = (Index("ix_paper_project_status", "project_id", "status"),)
 
 
+class ProtocolVersion(Base):
+    """History of the review protocol — the proposal will change, keep every
+    version. `project.protocol` always holds the current one."""
+
+    __tablename__ = "protocol_version"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    project_id: Mapped[int] = mapped_column(ForeignKey("project.id"), index=True)
+    protocol: Mapped[dict] = mapped_column(JSON)
+    source: Mapped[str]  # generated | edited
+    created_at: Mapped[datetime] = mapped_column(default=utcnow)
+
+
 class SearchQuery(Base):
     __tablename__ = "search_query"
 
