@@ -17,11 +17,13 @@
 
 ## Current Status
 
-**Phase:** Phase 0 COMPLETE. ✅
-**Last done:** All LLM tasks routed to `gemini/gemini-2.5-flash` (free tier)
-and verified live through `complete()` — screening, problem_review, and chat
-all answered. Frontend/backend verified earlier via the :3000→:8000 proxy.
-**Next up:** Phase 1, step 1.1 — Alembic + SQLite data model.
+**Phase:** Phase 1 COMPLETE. ✅ (Phases 0–1 done)
+**Last done:** SQLite + Alembic (initial migration applied), models for
+project/paper/search_query/screening_decision, dedup (DOI → arXiv →
+normalized title, project-scoped), CRUD API for projects+papers, 10 passing
+tests, idempotent seed script with 5 space-robotics papers. Verified live:
+list/insert/duplicate-409/patch all work against the real DB.
+**Next up:** Phase 2, step 2.1 — proposal upload + text extraction (pypdf).
 
 ---
 
@@ -78,19 +80,19 @@ health check green, LLM smoke test passes.
 
 Goal: the database exists and the backend can CRUD the core objects.
 
-- [ ] **1.1** Choose migration tool (Alembic) and wire it to SQLite.
-- [ ] **1.2** Tables: `project` (name, proposal_text, protocol JSON),
-      `paper` (title, abstract, year, venue, authors JSON, doi, arxiv_id,
-      s2_id, ntrs_id, citation_count, source, pdf_path, status:
-      inbox|included|excluded|maybe), `search_query` (query text, source,
-      last_run_at), `screening_decision` (paper_id, decision, reason,
-      decided_by: ai|me, created_at).
-- [ ] **1.3** De-duplication rule: match on DOI, else arXiv ID, else
-      normalized title. Unit tests for the matcher.
-- [ ] **1.4** Repository/CRUD layer + minimal API routes:
-      `GET/POST /api/papers`, `PATCH /api/papers/{id}`.
-- [ ] **1.5** Seed script: insert 5 hand-picked space-robotics papers so
-      the UI always has something to show during development.
+- [x] **1.1** Alembic wired to SQLite (`data/research_hub.db`); initial
+      migration `5a8685c38c5a` applied. `RESEARCH_HUB_DB` env var overrides
+      the DB URL (tests use in-memory).
+- [x] **1.2** Tables: `project`, `paper` (incl. `title_normalized` dedup
+      key + url field), `search_query`, `screening_decision` — as planned.
+- [x] **1.3** Dedup in `app/dedup.py`: DOI (URL-form + case normalized) →
+      arXiv ID (prefix/version stripped) → normalized title; scoped per
+      project. 6 unit tests.
+- [x] **1.4** Routes: `GET/POST /api/projects`, `GET/POST /api/papers`
+      (+ `GET/PATCH /api/papers/{id}`); duplicates → 409. 4 API tests via
+      dependency-override in-memory DB.
+- [x] **1.5** `scripts/seed.py` — idempotent, 5 hand-picked papers
+      (fixture-grade metadata; real ingestion replaces it in Phase 3).
 
 **Done when:** can create a project, insert papers (dupes rejected),
 list/update them via API. Tests pass.
@@ -250,3 +252,4 @@ I judge).
 | 2026-07-06 | Phase 0 done: FastAPI backend + Next.js 16 frontend + config.yaml/LiteLLM adapter + Makefile. Verified health check end-to-end through the :3000→:8000 proxy. Smoke test pending API keys. | User: fill `.env`, run `make smoke`. Then Phase 1 (SQLite + Alembic + paper tables). |
 | 2026-07-06 | OpenAI-only testing: routed all tasks to gpt-5/gpt-5-mini, smoke test skips keyless providers, fixed JHUAPL SSL_CERT_FILE breaking Python HTTPS (combined CA bundle). Key authenticates; completions blocked by $0 OpenAI quota. | User: add OpenAI API credit, run `make smoke`. Then Phase 1. |
 | 2026-07-06 | Gemini free-tier key added. All tasks → gemini-2.5-flash (pro has free-tier limit 0). Verified live: smoke test OK + all `complete()` task routes answer. **Phase 0 closed.** | Phase 1: SQLite + Alembic + paper/project/decision tables. |
+| 2026-07-07 | Phase 1 done: SQLAlchemy models + Alembic migration, dedup module, projects/papers CRUD API, 10 tests green, seed script (idempotent). Live-verified: duplicate insert → 409, patch status works. **Phase 1 closed.** | Phase 2: proposal upload → protocol generation → protocol editor. |
